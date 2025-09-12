@@ -1,11 +1,11 @@
-
 // FIX: Implementing the AdminDashboard component with a tabbed layout.
 import React, { useState } from 'react';
 import QueryLogDisplay from './QueryLogDisplay';
 import FeedbackLogDisplay from './FeedbackLogDisplay';
 import TrendsDisplay from './TrendsDisplay';
+import KnowledgeBaseDashboard from './KnowledgeBaseDashboard'; // Import new component
 
-type AdminTab = 'trends' | 'queries' | 'feedback';
+type AdminTab = 'trends' | 'queries' | 'feedback' | 'knowledgeBase'; // Add new tab type
 
 const AdminDashboard: React.FC = () => {
   const [activeTab, setActiveTab] = useState<AdminTab>('trends');
@@ -18,6 +18,8 @@ const AdminDashboard: React.FC = () => {
         return <QueryLogDisplay />;
       case 'feedback':
         return <FeedbackLogDisplay />;
+      case 'knowledgeBase': // Add new case
+        return <KnowledgeBaseDashboard />;
       default:
         return null;
     }
@@ -46,8 +48,9 @@ const AdminDashboard: React.FC = () => {
           </p>
         </div>
 
-        <div className="flex space-x-2 border-b border-slate-300 mb-6">
+        <div className="flex flex-wrap gap-2 border-b border-slate-300 mb-6 pb-2">
             <TabButton tab="trends" label="Trends & Analytics" />
+            <TabButton tab="knowledgeBase" label="Knowledge Base" />
             <TabButton tab="queries" label="Query Logs" />
             <TabButton tab="feedback" label="Feedback Logs" />
         </div>

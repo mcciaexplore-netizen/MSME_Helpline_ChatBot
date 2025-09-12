@@ -78,6 +78,14 @@ const App: React.FC = () => {
     return false;
   };
 
+  const handleAdminClick = () => {
+    // If the currently logged-in user is an admin, go directly to the dashboard.
+    // The admin button in the header is only visible to admins anyway.
+    if (currentUser?.role === 'admin') {
+      setView('adminDashboard');
+    }
+  };
+
   const handleNewChat = () => {
     setActiveChatId(null);
   };
@@ -104,7 +112,7 @@ const App: React.FC = () => {
       case 'adminDashboard':
         return (
           <div className="flex flex-col h-screen">
-            {/* FIX: In admin view, onLogout should return to chat, not log out completely. The Header component here is used as a way back. */}
+            {/* The Header here is used as a way back to the chat view for the admin. */}
             <Header currentUser={currentUser!} onAdminClick={() => {}} onLogout={() => setView('chat')} />
             <AdminDashboard />
           </div>
@@ -115,7 +123,7 @@ const App: React.FC = () => {
           <div className="flex flex-col h-screen bg-slate-50 font-sans">
             <Header
               currentUser={currentUser}
-              onAdminClick={() => setView('adminLogin')}
+              onAdminClick={handleAdminClick} // Use the new direct-access handler
               onLogout={handleLogout}
             />
             <main className="flex-1 flex overflow-hidden">

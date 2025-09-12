@@ -10,14 +10,9 @@ import StarterPrompts from './StarterPrompts';
 import { SendIcon } from './icons';
 import { saveNewChat, updateChatHistory } from '../services/chatHistoryService';
 
-// Initialize the Gemini AI client
-// API key must be obtained from `process.env.API_KEY` as per guidelines.
-// FIX: Using process.env.API_KEY to get the Gemini API key as per guidelines, instead of import.meta.env. This resolves the TypeScript error.
-const apiKey = process.env.API_KEY;
-if (!apiKey) {
-  throw new Error("API_KEY is not set. Please set it in your environment variables.");
-}
-const ai = new GoogleGenAI({ apiKey });
+// FIX: Initialize Gemini AI client using process.env.API_KEY as per guidelines.
+// This assumes the API key is pre-configured in the environment.
+const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
 
 interface ChatInterfaceProps {
   currentUser: TeamMember;
@@ -54,6 +49,7 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({ currentUser, faqs, videos
   }, [messages]);
 
   const handleSendMessage = useCallback(async (prompt: string) => {
+    // FIX: Removed !ai check as 'ai' is now a non-null constant.
     if (!prompt.trim() || isLoading) return;
 
     const userMessage: ChatMessage = {
