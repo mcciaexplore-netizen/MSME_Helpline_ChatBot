@@ -6,11 +6,11 @@ export const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiO
 
 // NOTE: To get this URL, in your Google Sheet, go to File > Share > Publish to web.
 // Select the specific sheet tab (e.g., 'Chat FAQ'), choose 'Comma-separated values (.csv)', and publish.
-// Copy the generated link here. Make sure it includes '&output=csv'.
-export const GOOGLE_SHEET_FAQ_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vSV27KluYPMnDaHit5gQmDZ-vj7z3wKA6H9V9xxiAG3_aCSzM7vsakC-uW7KQzlc66zR2p5qIY8feSx/pub?output=csv';
+// Copy the generated link here. It must include the correct 'gid' for the sheet tab.
+export const GOOGLE_SHEET_FAQ_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vSV27KluYPMnDaHit5gQmDZ-vj7z3wKA6H9V9xxiAG3_aCSzM7vsakC-uW7KQzlc66zR2p5qIY8feSx/pub?gid=0&single=true&output=csv';
 
 // NOTE: Do the same for your Video Suggestions sheet tab (e.g., 'Vid_DB').
-export const GOOGLE_SHEET_VIDEO_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vSV27KluYPMnDaHit5gQmDZ-vj7z3wKA6H9V9xxiAG3_aCSzM7vsakC-uW7KQzlc66zR2p5qIY8feSx/pub?output=csv';
+export const GOOGLE_SHEET_VIDEO_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vSV27KluYPMnDaHit5gQmDZ-vj7z3wKA6H9V9xxiAG3_aCSzM7vsakC-uW7KQzlc66zR2p5qIY8feSx/pub?gid=1303531111&single=true&output=csv';
 
 // This is a simplified user management for demo purposes.
 // In a real application, this would come from a database.

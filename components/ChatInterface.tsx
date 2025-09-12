@@ -58,72 +58,108 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({ currentUser, faqs, videos
       timestamp: new Date().toISOString(),
     };
 
-    const currentMessages = [...messages, userMessage];
-    setMessages(currentMessages);
+    setMessages(prev => [...prev, userMessage]);
     setInputValue('');
     setIsLoading(true);
 
-    let responseContent: string;
-    let isFaqResult = false;
-    let relevantFaqs: FAQ[] = [];
-    
-    relevantFaqs = findRelevantFaqs(prompt, faqs, 2);
+    const relevantFaqs = findRelevantFaqs(prompt, faqs, 2);
+
     if (relevantFaqs.length > 0) {
-      responseContent = `I found some information that might help:\n\n**${relevantFaqs[0].Question}**\n${relevantFaqs[0].Solution}`;
+      // FAQ-based response
+      let responseContent = `I found some information that might help:\n\n**${relevantFaqs[0].Question}**\n${relevantFaqs[0].Solution}`;
       if (relevantFaqs.length > 1) {
         responseContent += `\n\nHere are some other related questions:\n` + relevantFaqs.slice(1).map(f => `- ${f.Question}`).join('\n');
       }
-      isFaqResult = true;
+      
+      const videoSuggestions = findRelevantVideos(prompt, videos);
+      const assistantMessage: ChatMessage = {
+        id: `assistant-${Date.now()}`,
+        role: 'assistant',
+        content: responseContent,
+        timestamp: new Date().toISOString(),
+        feedback: null,
+        isFeedbackSubmitted: false,
+        searchedForVideos: true,
+        videoSuggestions: videoSuggestions,
+      };
+
+      setMessages(prev => {
+        const updatedMessages = [...prev, assistantMessage];
+        logQuery({ userId: currentUser.id, userName: currentUser.name, query: prompt, response: responseContent, isFaqResult: true, relevantFaqs, videoSuggestions });
+      
+        if (activeChat) {
+          updateChatHistory(activeChat.id, updatedMessages).then(c => c && onChatHistoryUpdate(c));
+        } else {
+          const domain = STARTER_PROMPT_TOPICS.find(t => prompt.toLowerCase().includes(t.toLowerCase().split(' ')[0])) || 'General';
+          saveNewChat(currentUser.id, currentUser.name, prompt, domain, updatedMessages).then(c => c && onChatHistoryUpdate(c));
+        }
+        return updatedMessages;
+      });
+
+      setIsLoading(false);
     } else {
+      // Gemini API streaming response
+      const assistantId = `assistant-${Date.now()}`;
+      setMessages(prev => [...prev, {
+        id: assistantId,
+        role: 'assistant',
+        content: '',
+        timestamp: new Date().toISOString(),
+        feedback: null,
+        isFeedbackSubmitted: false,
+      }]);
+
+      let fullResponseText = '';
       try {
-        const result = await ai.models.generateContent({
+        const responseStream = await ai.models.generateContentStream({
             model: 'gemini-2.5-flash',
             contents: `You are an expert assistant for Micro, Small, and Medium Enterprises (MSMEs) in India. Keep your answers concise, helpful, and easy to understand. User query: "${prompt}"`,
         });
-        responseContent = result.text;
+
+        for await (const chunk of responseStream) {
+            fullResponseText += chunk.text;
+            setMessages(prev => prev.map(msg => 
+                msg.id === assistantId ? { ...msg, content: fullResponseText } : msg
+            ));
+        }
       } catch (error) {
         console.error("Error calling Gemini API:", error);
-        responseContent = "Error: I'm sorry, I encountered an issue while generating a response. Please check if the API key is valid and try again later.";
+        fullResponseText = "Error: I'm sorry, I encountered an issue while generating a response. Please check if the API key is valid and try again later.";
+        setMessages(prev => prev.map(msg => 
+            msg.id === assistantId ? { ...msg, content: fullResponseText } : msg
+        ));
       }
+
+      const videoSuggestions = findRelevantVideos(prompt, videos);
+      
+      setMessages(prev => {
+        const finalMessages = prev.map(msg => 
+            msg.id === assistantId 
+                ? { ...msg, content: fullResponseText, searchedForVideos: true, videoSuggestions } 
+                : msg
+        );
+
+        logQuery({
+          userId: currentUser.id,
+          userName: currentUser.name,
+          query: prompt,
+          response: fullResponseText,
+          isFaqResult: false,
+          relevantFaqs: [],
+          videoSuggestions: videoSuggestions,
+        });
+
+        if (activeChat) {
+          updateChatHistory(activeChat.id, finalMessages).then(c => c && onChatHistoryUpdate(c));
+        } else {
+          const domain = STARTER_PROMPT_TOPICS.find(t => prompt.toLowerCase().includes(t.toLowerCase().split(' ')[0])) || 'General';
+          saveNewChat(currentUser.id, currentUser.name, prompt, domain, finalMessages).then(c => c && onChatHistoryUpdate(c));
+        }
+        return finalMessages;
+      });
+      setIsLoading(false);
     }
-
-    const videoSuggestions = findRelevantVideos(prompt, videos);
-
-    const assistantMessage: ChatMessage = {
-      id: `assistant-${Date.now()}`,
-      role: 'assistant',
-      content: responseContent,
-      timestamp: new Date().toISOString(),
-      feedback: null,
-      isFeedbackSubmitted: false,
-      searchedForVideos: true,
-      videoSuggestions: videoSuggestions,
-    };
-    
-    const finalMessages = [...currentMessages, assistantMessage];
-    setMessages(finalMessages);
-
-    logQuery({
-      userId: currentUser.id,
-      userName: currentUser.name,
-      query: prompt,
-      response: responseContent,
-      isFaqResult: isFaqResult,
-      relevantFaqs: relevantFaqs,
-      videoSuggestions: videoSuggestions,
-    });
-
-    if (activeChat) {
-        const updatedChat = await updateChatHistory(activeChat.id, finalMessages);
-        if (updatedChat) onChatHistoryUpdate(updatedChat);
-    } else {
-        const domain = STARTER_PROMPT_TOPICS.find(t => prompt.toLowerCase().includes(t.toLowerCase().split(' ')[0])) || 'General';
-        const newChat = await saveNewChat(currentUser.id, currentUser.name, prompt, domain, finalMessages);
-        if (newChat) onChatHistoryUpdate(newChat);
-    }
-
-    setIsLoading(false);
-  }, [ai, isLoading, messages, faqs, videos, currentUser, activeChat, onChatHistoryUpdate]);
+  }, [ai, isLoading, faqs, videos, currentUser, activeChat, onChatHistoryUpdate]);
 
 
   const handleFeedback = (messageId: string, feedback: '👍' | '👎') => {
@@ -162,7 +198,7 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({ currentUser, faqs, videos
             isFeedbackSubmitted={message.isFeedbackSubmitted}
           />
         ))}
-        {isLoading && (
+        {isLoading && messages[messages.length - 1]?.role === 'user' && (
           <div className="flex justify-start">
             <div className="max-w-[85%] sm:max-w-[80%] p-3 rounded-xl shadow-sm bg-slate-100 text-slate-800 rounded-bl-none">
               <div className="flex items-center space-x-2">
