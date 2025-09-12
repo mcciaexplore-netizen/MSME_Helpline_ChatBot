@@ -3,7 +3,7 @@ import React, { useState } from 'react';
 import QueryLogDisplay from './QueryLogDisplay';
 import FeedbackLogDisplay from './FeedbackLogDisplay';
 import TrendsDisplay from './TrendsDisplay';
-import KnowledgeBaseDashboard from '../KnowledgeBaseDashboard'; // Import new component
+import KnowledgeBaseDashboard from '../KnowledgeBaseDashboard'; // Corrected Path
 
 type AdminTab = 'trends' | 'queries' | 'feedback' | 'knowledgeBase'; // Add new tab type
 
