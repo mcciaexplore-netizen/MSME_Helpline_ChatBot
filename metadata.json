@@ -1,0 +1,5 @@
+{
+  "name": "MCCIA MSME Helpline Chatbot",
+  "description": "A React-based chatbot application that uses Gemini API to answer MSME-related queries, leveraging an FAQ database from a Google Sheet. It includes query logging and feedback collection.",
+  "requestFramePermissions": []
+}

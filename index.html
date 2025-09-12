@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MCCIA MSME Helpline</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
+  <script>
+    // Make process.env.API_KEY available. In a real deployment, this would be set by the environment.
+    // The prompt states "Assume this variable is pre-configured, valid, and accessible".
+    if (typeof process === 'undefined') {
+      window.process = { env: {} };
+    } else if (typeof process.env === 'undefined') {
+      process.env = {};
+    }
+    // To actually test, you would need to set this, e.g., in a script before React loads:
+    // process.env.API_KEY = "YOUR_GEMINI_API_KEY"; 
+    // For the purpose of this generated code, we assume it's set as per prompt instructions.
+  </script>
+<script type="importmap">
+{
+  "imports": {
+    "react-dom/": "https://esm.sh/react-dom@^19.1.0/",
+    "react/": "https://esm.sh/react@^19.1.0/",
+    "react": "https://esm.sh/react@^19.1.0",
+    "@google/genai": "https://esm.sh/@google/genai@^1.6.0",
+    "react-markdown": "https://esm.sh/react-markdown@^10.1.0",
+    "remark-gfm": "https://esm.sh/remark-gfm@^4.0.1",
+    "@supabase/supabase-js": "https://esm.sh/@supabase/supabase-js@2"
+  }
+}
+</script>
+</head>
+<body class="bg-slate-100"> {/* Removed dark:bg-slate-900 */}
+  <div id="root"></div>
+  <script type="module" src="/index.tsx"></script>
+</body>
+</html>
