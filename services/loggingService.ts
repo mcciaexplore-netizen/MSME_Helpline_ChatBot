@@ -1,76 +1,120 @@
 
-// FIX: Implementing logging service to handle query and feedback logs in localStorage.
+import { supabase } from './supabaseService';
 import { QueryLogEntry, FeedbackLogEntry } from '../types';
 
-const QUERY_LOG_KEY = 'mccia_msme_query_logs';
-const FEEDBACK_LOG_KEY = 'mccia_msme_feedback_logs';
-
-// Helper to safely get/set from localStorage
-const getFromStorage = <T>(key: string): T[] => {
-  try {
-    const item = localStorage.getItem(key);
-    return item ? JSON.parse(item) : [];
-  } catch (error) {
-    console.error(`Error reading from localStorage key "${key}":`, error);
-    return [];
-  }
-};
-
-const saveToStorage = <T>(key: string, data: T[]): void => {
-  try {
-    localStorage.setItem(key, JSON.stringify(data));
-  } catch (error) {
-    console.error(`Error writing to localStorage key "${key}":`, error);
-  }
-};
+if (!supabase) {
+    console.warn("Supabase client not initialized. Logging service will be disabled.");
+}
 
 // ================== Query Logging ==================
 
-export const logQuery = (logEntry: Omit<QueryLogEntry, 'timestamp'>): void => {
-  const logs = getFromStorage<QueryLogEntry>(QUERY_LOG_KEY);
-  const newLog: QueryLogEntry = {
-    ...logEntry,
-    timestamp: new Date().toISOString(),
-  };
-  logs.push(newLog);
-  saveToStorage(QUERY_LOG_KEY, logs);
+export const logQuery = async (logEntry: Omit<QueryLogEntry, 'timestamp'>): Promise<void> => {
+  if (!supabase) return;
+  try {
+    const { error } = await supabase.from('query_logs').insert({
+        user_id: logEntry.userId,
+        user_name: logEntry.userName,
+        query: logEntry.query,
+        response: logEntry.response,
+        is_faq_result: logEntry.isFaqResult,
+        relevant_faqs: logEntry.relevantFaqs,
+        video_suggestions: logEntry.videoSuggestions,
+    });
+    if (error) throw error;
+  } catch (error) {
+    console.error('Error logging query to Supabase:', error);
+  }
 };
 
-export const getQueryLogs = (): QueryLogEntry[] => {
-  return getFromStorage<QueryLogEntry>(QUERY_LOG_KEY);
-};
-
-export const clearQueryLogs = (): void => {
+export const getQueryLogs = async (): Promise<QueryLogEntry[]> => {
+    if (!supabase) return [];
     try {
-        localStorage.removeItem(QUERY_LOG_KEY);
-        console.log("Query logs cleared from localStorage.");
+        const { data, error } = await supabase
+            .from('query_logs')
+            .select('*')
+            .order('created_at', { ascending: false });
+
+        if (error) throw error;
+        
+        // Map snake_case from db to camelCase for app
+        return data.map((log: any) => ({
+            timestamp: log.created_at,
+            userId: log.user_id,
+            userName: log.user_name,
+            query: log.query,
+            response: log.response,
+            isFaqResult: log.is_faq_result,
+            relevantFaqs: log.relevant_faqs,
+            videoSuggestions: log.video_suggestions,
+        }));
     } catch (error) {
-        console.error(`Error clearing query logs from localStorage:`, error);
+        console.error('Error fetching query logs from Supabase:', error);
+        return [];
+    }
+};
+
+export const clearQueryLogs = async (): Promise<void> => {
+    if (!supabase) return;
+    try {
+        // Deletes all rows in the table. The `neq` is a workaround for RLS policies.
+        const { error } = await supabase.from('query_logs').delete().neq('id', -1); 
+        if (error) throw error;
+        console.log("Query logs cleared from Supabase.");
+    } catch (error) {
+        console.error('Error clearing query logs:', error);
     }
 };
 
 
 // ================== Feedback Logging ==================
 
-export const logFeedback = (logEntry: Omit<FeedbackLogEntry, 'timestamp'>): void => {
-  const logs = getFromStorage<FeedbackLogEntry>(FEEDBACK_LOG_KEY);
-  const newLog: FeedbackLogEntry = {
-    ...logEntry,
-    timestamp: new Date().toISOString(),
-  };
-  logs.push(newLog);
-  saveToStorage(FEEDBACK_LOG_KEY, logs);
+export const logFeedback = async (logEntry: Omit<FeedbackLogEntry, 'timestamp'>): Promise<void> => {
+    if (!supabase) return;
+    try {
+        const { error } = await supabase.from('feedback_logs').insert({
+            user_id: logEntry.userId,
+            user_name: logEntry.userName,
+            query: logEntry.query,
+            response: logEntry.response,
+            feedback: logEntry.feedback,
+        });
+        if (error) throw error;
+    } catch (error) {
+        console.error('Error logging feedback to Supabase:', error);
+    }
 };
 
-export const getFeedbackLogs = (): FeedbackLogEntry[] => {
-  return getFromStorage<FeedbackLogEntry>(FEEDBACK_LOG_KEY);
+export const getFeedbackLogs = async (): Promise<FeedbackLogEntry[]> => {
+    if (!supabase) return [];
+    try {
+        const { data, error } = await supabase
+            .from('feedback_logs')
+            .select('*')
+            .order('created_at', { ascending: false });
+
+        if (error) throw error;
+        
+        return data.map((log: any) => ({
+            timestamp: log.created_at,
+            userId: log.user_id,
+            userName: log.user_name,
+            query: log.query,
+            response: log.response,
+            feedback: log.feedback,
+        }));
+    } catch (error) {
+        console.error('Error fetching feedback logs from Supabase:', error);
+        return [];
+    }
 };
 
-export const clearFeedbackLogs = (): void => {
+export const clearFeedbackLogs = async (): Promise<void> => {
+  if (!supabase) return;
   try {
-    localStorage.removeItem(FEEDBACK_LOG_KEY);
-    console.log("Feedback logs cleared from localStorage.");
+    const { error } = await supabase.from('feedback_logs').delete().neq('id', -1);
+    if (error) throw error;
+    console.log("Feedback logs cleared from Supabase.");
   } catch (error) {
-    console.error(`Error clearing feedback logs from localStorage:`, error);
+    console.error(`Error clearing feedback logs from Supabase:`, error);
   }
 };

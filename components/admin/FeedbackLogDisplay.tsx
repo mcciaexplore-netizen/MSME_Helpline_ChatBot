@@ -1,39 +1,29 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { getFeedbackLogs } from '../../services/loggingService'; // Assuming clearFeedbackLogs will be added
+import { getFeedbackLogs, clearFeedbackLogs } from '../../services/loggingService';
 import { FeedbackLogEntry } from '../../types';
 // FIX: Corrected import path for icons.
 import { TrashIcon } from '../icons';
 
-// Function to clear feedback logs - to be added to loggingService.ts if not present
-const clearFeedbackLogs = (): void => {
-  try {
-    localStorage.removeItem('mccia_msme_feedback_logs'); // Using key from loggingService
-    console.log("Feedback logs cleared from localStorage.");
-  } catch (error) {
-    console.error(`Error clearing feedback logs from localStorage:`, error);
-  }
-};
-
-
 const FeedbackLogDisplay: React.FC = () => {
   const [logs, setLogs] = useState<FeedbackLogEntry[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
 
-  const fetchLogs = useCallback(() => {
-    const allLogs = getFeedbackLogs();
-    // Sort by timestamp descending (newest first)
-    allLogs.sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime());
+  const fetchLogs = useCallback(async () => {
+    setIsLoading(true);
+    const allLogs = await getFeedbackLogs();
     setLogs(allLogs);
+    setIsLoading(false);
   }, []);
 
   useEffect(() => {
     fetchLogs();
   }, [fetchLogs]);
 
-  const handleClearLogs = () => {
+  const handleClearLogs = async () => {
     if (window.confirm('Are you sure you want to clear all feedback logs? This action cannot be undone.')) {
-      clearFeedbackLogs(); // Call the local or imported clear function
-      fetchLogs(); // Refresh logs
+      await clearFeedbackLogs();
+      fetchLogs(); 
     }
   };
   
@@ -41,6 +31,14 @@ const FeedbackLogDisplay: React.FC = () => {
     log.query.toLowerCase().includes(searchTerm.toLowerCase()) ||
     log.response.toLowerCase().includes(searchTerm.toLowerCase())
   );
+  
+  if (isLoading) {
+    return (
+      <div className="bg-white p-6 rounded-lg shadow-lg text-center">
+        <p className="text-slate-600">Loading feedback logs...</p>
+      </div>
+    );
+  }
 
   return (
     <div className="bg-white p-6 rounded-lg shadow-lg">
@@ -119,7 +117,7 @@ const FeedbackLogDisplay: React.FC = () => {
         </div>
       )}
       <p className="text-xs text-slate-500 mt-4">
-        Showing {filteredLogs.length} of {logs.length} total feedback entries. Logs are stored in the browser's local storage.
+        Showing {filteredLogs.length} of {logs.length} total feedback entries. Logs are stored in Supabase.
       </p>
     </div>
   );

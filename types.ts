@@ -1,4 +1,5 @@
 
+
 // FIX: Defining all TypeScript types used across the application.
 export type TeamMember = {
   id: string;
@@ -30,9 +31,9 @@ export type FAQ = {
 export type VideoSuggestion = {
     id: string;
     domain: string;
-    queryTitle: string;
+    title: string;
     description: string;
-    videoLink: string;
+    link: string;
     keywords: string[];
 };
 

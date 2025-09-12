@@ -1,5 +1,3 @@
-
-
 import { VideoSuggestion } from '../types';
 // FIX: Corrected import path for constants.
 import { GOOGLE_SHEET_VIDEO_URL } from '../constants';
@@ -39,19 +37,20 @@ export const loadVideosFromGoogleSheet = async (): Promise<VideoSuggestion[]> =>
     
     const videosFromCsv: any[] = parsedResult.data;
 
+    // FIX: Updated required columns to match the user's Google Sheet structure.
     const requiredColumns = ['Domain', 'Query', 'Video Description', 'Video Link', 'Keywords'];
      if (videosFromCsv.length > 0) {
         const headers = Object.keys(videosFromCsv[0]);
         const missingCols = requiredColumns.filter(col => !headers.includes(col));
         if (missingCols.length > 0) {
-            console.error(`[Video Service] Video Google Sheet ('Vid_DB' tab) is missing required columns: ${missingCols.join(', ')}. Please ensure your sheet has these columns.`);
+            console.error(`[Video Service] Video Google Sheet ('Vid_DB' tab) is missing required columns: ${missingCols.join(', ')}. Please ensure your sheet has these columns: Domain, Query, Video Description, Video Link, Keywords.`);
             return [];
         }
     } else if (parsedResult.meta && parsedResult.meta.fields && parsedResult.meta.fields.length > 0) {
         const headers: string[] = parsedResult.meta.fields;
         const missingCols = requiredColumns.filter((col: string) => !headers.includes(col));
          if (missingCols.length > 0) {
-            console.error(`[Video Service] Video Google Sheet ('Vid_DB' tab) is missing required columns (checked from meta.fields): ${missingCols.join(', ')}. Please ensure your sheet has these columns.`);
+            console.error(`[Video Service] Video Google Sheet ('Vid_DB' tab) is missing required columns (checked from meta.fields): ${missingCols.join(', ')}. Please ensure your sheet has these columns: Domain, Query, Video Description, Video Link, Keywords.`);
             return [];
         }
     } else if (videosFromCsv.length === 0 && (!parsedResult.meta || !parsedResult.meta.fields || parsedResult.meta.fields.length === 0)){
@@ -60,13 +59,15 @@ export const loadVideosFromGoogleSheet = async (): Promise<VideoSuggestion[]> =>
     }
 
     const videos: VideoSuggestion[] = videosFromCsv
-      .filter(row => row && requiredColumns.every(col => row[col] !== undefined && row[col] !== null && String(row[col]).trim() !== '') && String(row['Video Link']).trim() !== '') // Ensure essential columns exist, are not empty, and Video Link is present
+      // FIX: Ensure filter checks for the new 'Video Link' column.
+      .filter(row => row && requiredColumns.every(col => row[col] !== undefined && row[col] !== null && String(row[col]).trim() !== '') && String(row['Video Link']).trim() !== '') // Ensure essential columns exist, are not empty, and Link is present
       .map((row: any, index: number) => ({
         id: `video-${Date.now()}-${index}`, 
         domain: String(row['Domain'] || 'General').trim(),
-        queryTitle: String(row['Query'] || 'Untitled Video').trim(),
+        // FIX: Map 'Query', 'Video Description', and 'Video Link' from the sheet to the app's data model.
+        title: String(row['Query'] || 'Untitled Video').trim(),
         description: String(row['Video Description'] || 'No description available.').trim(),
-        videoLink: String(row['Video Link']).trim(), // Already checked this is not empty
+        link: String(row['Video Link']).trim(),
         keywords: (String(row['Keywords'] || '').split(','))
                     .map((kw: string) => kw.trim().toLowerCase())
                     .filter(Boolean),
@@ -99,12 +100,12 @@ export const findRelevantVideos = (userQuery: string, videos: VideoSuggestion[],
 
   for (const video of videos) {
     let matchScore = 0;
-    const queryTitleLower = (video.queryTitle || "").toLowerCase();
+    const titleLower = (video.title || "").toLowerCase();
     const descriptionLower = (video.description || "").toLowerCase();
     // video.keywords are already lowercased during parsing
     const keywordsString = (video.keywords || []).join(' '); 
     
-    const textForMatching = `${queryTitleLower} ${descriptionLower} ${keywordsString}`;
+    const textForMatching = `${titleLower} ${descriptionLower} ${keywordsString}`;
     const videoWords = new Set(textForMatching.match(/\b\w+\b/g) || []);
     
     const commonWords = new Set([...queryWords].filter(word => videoWords.has(word)));
@@ -115,8 +116,8 @@ export const findRelevantVideos = (userQuery: string, videos: VideoSuggestion[],
             matchScore += 2; 
         }
     });
-    const queryTitleWords = new Set(queryTitleLower.match(/\b\w+\b/g) || []);
-    const commonInTitle = new Set([...queryWords].filter(word => queryTitleWords.has(word)));
+    const titleWords = new Set(titleLower.match(/\b\w+\b/g) || []);
+    const commonInTitle = new Set([...queryWords].filter(word => titleWords.has(word)));
     matchScore += commonInTitle.size * 1.5;
 
 

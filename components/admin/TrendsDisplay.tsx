@@ -26,28 +26,40 @@ const TrendsDisplay: React.FC = () => {
   const [queryCount, setQueryCount] = useState(0);
   const [faqHitCount, setFaqHitCount] = useState(0);
   const [topKeywords, setTopKeywords] = useState<[string, number][]>([]);
-  const [allLogs, setAllLogs] = useState<QueryLogEntry[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    const logs = getQueryLogs();
-    setAllLogs(logs);
-    setQueryCount(logs.length);
-    setFaqHitCount(logs.filter(log => log.isFaqResult).length);
+    const fetchTrends = async () => {
+        setIsLoading(true);
+        const logs = await getQueryLogs();
+        setQueryCount(logs.length);
+        setFaqHitCount(logs.filter(log => log.isFaqResult).length);
 
-    if (logs.length > 0) {
-      const allQueries = logs.map(log => log.query);
-      const wordFreq = countWordFrequency(allQueries);
-      const sortedKeywords = [...wordFreq.entries()]
-        .sort((a, b) => b[1] - a[1])
-        .slice(0, 15); // Top 15 keywords
-      setTopKeywords(sortedKeywords);
-    }
+        if (logs.length > 0) {
+        const allQueries = logs.map(log => log.query);
+        const wordFreq = countWordFrequency(allQueries);
+        const sortedKeywords = [...wordFreq.entries()]
+            .sort((a, b) => b[1] - a[1])
+            .slice(0, 15); // Top 15 keywords
+        setTopKeywords(sortedKeywords);
+        }
+        setIsLoading(false);
+    };
+    fetchTrends();
   }, []);
 
   const faqHitRate = useMemo(() => {
     if (queryCount === 0) return '0.00';
     return ((faqHitCount / queryCount) * 100).toFixed(2);
   }, [queryCount, faqHitCount]);
+
+  if (isLoading) {
+    return (
+      <div className="bg-white p-6 rounded-lg shadow-lg text-center">
+        <p className="text-slate-600">Loading analytics data...</p>
+      </div>
+    );
+  }
 
   return (
     <div className="bg-white p-6 rounded-lg shadow-lg">
@@ -90,7 +102,7 @@ const TrendsDisplay: React.FC = () => {
         </div>
       )}
        <p className="text-xs text-slate-500 mt-6">
-        Analytics are based on {queryCount} queries stored in the browser's local storage. Stop words are excluded from keyword analysis.
+        Analytics are based on {queryCount} queries stored in Supabase. Stop words are excluded from keyword analysis.
       </p>
     </div>
   );

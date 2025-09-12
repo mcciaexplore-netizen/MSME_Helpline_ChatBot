@@ -54,13 +54,13 @@ const VideoSuggestionsDisplay: React.FC<VideoSuggestionsDisplayProps> = ({ video
       <h4 className="text-sm font-semibold text-slate-700 mb-2.5">Relevant Videos:</h4>
       <div className="space-y-3">
         {videos.map((video) => {
-          const videoId = getYoutubeVideoId(video.videoLink);
+          const videoId = getYoutubeVideoId(video.link);
           const thumbnailUrl = videoId ? `https://img.youtube.com/vi/${videoId}/mqdefault.jpg` : null;
 
           return (
             <a
               key={video.id}
-              href={video.videoLink}
+              href={video.link}
               target="_blank"
               rel="noopener noreferrer"
               className="flex items-start p-3 bg-white rounded-lg shadow-sm border border-slate-200/80 hover:shadow-md transition-all duration-150 group"
@@ -70,7 +70,7 @@ const VideoSuggestionsDisplay: React.FC<VideoSuggestionsDisplayProps> = ({ video
                   <>
                     <img 
                       src={thumbnailUrl} 
-                      alt={`Thumbnail for ${video.queryTitle}`} 
+                      alt={`Thumbnail for ${video.title}`} 
                       className="w-full h-full object-cover rounded border border-slate-200"
                     />
                     <div className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-0 group-hover:bg-opacity-30 transition-opacity duration-150 rounded opacity-0 group-hover:opacity-100">
@@ -86,9 +86,9 @@ const VideoSuggestionsDisplay: React.FC<VideoSuggestionsDisplayProps> = ({ video
               <div className="flex-grow min-w-0">
                 <h5
                   className="text-sm font-medium text-blue-600 group-hover:text-blue-800 group-hover:underline truncate"
-                  title={video.queryTitle}
+                  title={video.title}
                 >
-                  {video.queryTitle}
+                  {video.title}
                 </h5>
                 <p className="text-xs text-slate-600 mt-0.5 leading-relaxed line-clamp-2" title={video.description}>
                   {video.description}

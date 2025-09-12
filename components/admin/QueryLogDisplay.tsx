@@ -9,22 +9,24 @@ import { TrashIcon, EyeIcon } from '../icons';
 
 const QueryLogDisplay: React.FC = () => {
   const [logs, setLogs] = useState<QueryLogEntry[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedLog, setSelectedLog] = useState<QueryLogEntry | null>(null);
 
-  const fetchLogs = useCallback(() => {
-    const allLogs = getQueryLogs();
-    allLogs.sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime());
+  const fetchLogs = useCallback(async () => {
+    setIsLoading(true);
+    const allLogs = await getQueryLogs();
     setLogs(allLogs);
+    setIsLoading(false);
   }, []);
 
   useEffect(() => {
     fetchLogs();
   }, [fetchLogs]);
 
-  const handleClearLogs = () => {
+  const handleClearLogs = async () => {
     if (window.confirm('Are you sure you want to clear all query logs? This action cannot be undone.')) {
-      clearQueryLogs();
+      await clearQueryLogs();
       fetchLogs();
     }
   };
@@ -34,6 +36,14 @@ const QueryLogDisplay: React.FC = () => {
     log.userName.toLowerCase().includes(searchTerm.toLowerCase()) ||
     log.response.toLowerCase().includes(searchTerm.toLowerCase())
   );
+
+  if (isLoading) {
+    return (
+      <div className="bg-white p-6 rounded-lg shadow-lg text-center">
+        <p className="text-slate-600">Loading query logs...</p>
+      </div>
+    );
+  }
 
   return (
     <div className="bg-white p-6 rounded-lg shadow-lg">
@@ -102,7 +112,7 @@ const QueryLogDisplay: React.FC = () => {
         </div>
       )}
       <p className="text-xs text-slate-500 mt-4">
-        Showing {filteredLogs.length} of {logs.length} total entries. Logs are stored in the browser's local storage.
+        Showing {filteredLogs.length} of {logs.length} total entries. Logs are stored in Supabase.
       </p>
 
       {/* Modal for viewing log details */}
@@ -135,7 +145,7 @@ const QueryLogDisplay: React.FC = () => {
                             <div className="p-3 bg-green-50 rounded-md">
                                 <strong className="block mb-1">Suggested Videos:</strong>
                                 <ul className="list-disc list-inside text-slate-700">
-                                    {selectedLog.videoSuggestions.map((vid, i) => <li key={i}><a href={vid.videoLink} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">{vid.queryTitle}</a></li>)}
+                                    {selectedLog.videoSuggestions.map((vid, i) => <li key={i}><a href={vid.link} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">{vid.title}</a></li>)}
                                 </ul>
                             </div>
                         )}
