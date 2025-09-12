@@ -1,5 +1,3 @@
-
-
 import { FAQ } from '../types';
 // FIX: Corrected import path for constants.
 import { GOOGLE_SHEET_FAQ_URL } from '../constants';
@@ -42,6 +40,11 @@ export const loadFaqsFromGoogleSheet = async (): Promise<FAQ[]> => {
     const requiredColumns = ['Question', 'Solution', 'Key Words'];
     if (faqsFromCsv.length > 0) { 
         const headers = Object.keys(faqsFromCsv[0]);
+        // Defensive check to see if the video sheet was loaded by mistake
+        if (headers.includes('Video Link') && headers.includes('Video Description')) {
+            console.error(`[FAQ Service] Error: The configured GOOGLE_SHEET_FAQ_URL appears to be pointing to the Video sheet ('Vid_DB'), not the 'Chat FAQ' sheet. Please check the URL in constants.ts. The FAQ service is expecting columns like 'Question' and 'Solution', but found 'Video Link' and 'Video Description'.`);
+            return [];
+        }
         const missingCols = requiredColumns.filter(col => !headers.includes(col));
         if (missingCols.length > 0) {
             console.error(`[FAQ Service] FAQ Google Sheet ('Chat FAQ' tab) is missing required columns: ${missingCols.join(', ')}. Please ensure your sheet has these columns.`);
