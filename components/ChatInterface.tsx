@@ -1,5 +1,4 @@
-import { GoogleGenAI } from '@google/genai';
-import React, { useState, useRef, useEffect, useCallback, useMemo } from 'react';
+import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { ChatMessage, FAQ, TeamMember, VideoSuggestion, ChatHistory } from '../types';
 import { findRelevantFaqs } from '../services/faqService';
 import { findRelevantVideos } from '../services/videoSuggestionService';
@@ -25,10 +24,6 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({ currentUser, faqs, videos
   const [isLoading, setIsLoading] = useState(false);
   const chatEndRef = useRef<HTMLDivElement>(null);
 
-  // Initialize Gemini AI client using the globally available process.env.API_KEY.
-  // App.tsx ensures this component only renders when the key is valid.
-  const ai = useMemo(() => new GoogleGenAI({ apiKey: process.env.API_KEY! }), []);
-
   useEffect(() => {
     if (activeChat) {
       setMessages(activeChat.messages);
@@ -49,7 +44,7 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({ currentUser, faqs, videos
   }, [messages]);
 
   const handleSendMessage = useCallback(async (prompt: string) => {
-    if (!ai || !prompt.trim() || isLoading) return;
+    if (!prompt.trim() || isLoading) return;
 
     const userMessage: ChatMessage = {
       id: `user-${Date.now()}`,
@@ -98,7 +93,7 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({ currentUser, faqs, videos
 
       setIsLoading(false);
     } else {
-      // Gemini API streaming response
+      // AI response via secure backend proxy
       const assistantId = `assistant-${Date.now()}`;
       setMessages(prev => [...prev, {
         id: assistantId,
@@ -111,20 +106,35 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({ currentUser, faqs, videos
 
       let fullResponseText = '';
       try {
-        const responseStream = await ai.models.generateContentStream({
-            model: 'gemini-2.5-flash',
-            contents: `You are an expert assistant for Micro, Small, and Medium Enterprises (MSMEs) in India. Keep your answers concise, helpful, and easy to understand. User query: "${prompt}"`,
+        const response = await fetch('/api/generate', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ prompt }),
         });
 
-        for await (const chunk of responseStream) {
-            fullResponseText += chunk.text;
-            setMessages(prev => prev.map(msg => 
-                msg.id === assistantId ? { ...msg, content: fullResponseText } : msg
-            ));
+        if (!response.ok || !response.body) {
+            const errorText = await response.text();
+            console.error("Error from backend:", errorText);
+            throw new Error(`Server responded with ${response.status}: ${errorText}`);
         }
+
+        const reader = response.body.getReader();
+        const decoder = new TextDecoder();
+        
+        while (true) {
+          const { done, value } = await reader.read();
+          if (done) break;
+          
+          const chunkText = decoder.decode(value);
+          fullResponseText += chunkText;
+          setMessages(prev => prev.map(msg => 
+              msg.id === assistantId ? { ...msg, content: fullResponseText } : msg
+          ));
+        }
+
       } catch (error) {
-        console.error("Error calling Gemini API:", error);
-        fullResponseText = "Error: I'm sorry, I encountered an issue while generating a response. Please check if the API key is valid and try again later.";
+        console.error("Error fetching from backend proxy:", error);
+        fullResponseText = "Error: I'm sorry, I encountered an issue while generating a response. Please check the server logs and try again later.";
         setMessages(prev => prev.map(msg => 
             msg.id === assistantId ? { ...msg, content: fullResponseText } : msg
         ));
@@ -159,7 +169,7 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({ currentUser, faqs, videos
       });
       setIsLoading(false);
     }
-  }, [ai, isLoading, faqs, videos, currentUser, activeChat, onChatHistoryUpdate]);
+  }, [isLoading, faqs, videos, currentUser, activeChat, onChatHistoryUpdate]);
 
 
   const handleFeedback = (messageId: string, feedback: '👍' | '👎') => {

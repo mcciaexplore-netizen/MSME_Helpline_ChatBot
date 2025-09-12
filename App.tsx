@@ -15,9 +15,6 @@ import { supabase } from './services/supabaseService';
 
 type AppView = 'userLogin' | 'chat' | 'adminLogin' | 'adminDashboard';
 
-// This check verifies if the API key is provided via environment variables.
-const isApiKeyConfigured = process.env.API_KEY && process.env.API_KEY !== "__GEMINI_API_KEY__";
-
 const App: React.FC = () => {
   const [currentUser, setCurrentUser] = useState<TeamMember | null>(null);
   const [view, setView] = useState<AppView>('userLogin');
@@ -37,9 +34,7 @@ const App: React.FC = () => {
       setVideos(loadedVideos);
       setIsDataLoaded(true);
     };
-    if (isApiKeyConfigured) {
-        loadData();
-    }
+    loadData();
   }, []);
   
   const loadChatHistory = useCallback(async (userId: string) => {
@@ -109,33 +104,6 @@ const App: React.FC = () => {
   const activeChat = chatHistory.find(c => c.id === activeChatId) || null;
 
   const renderContent = () => {
-    if (!isApiKeyConfigured) {
-      return (
-        <div className="flex items-center justify-center h-screen bg-slate-100">
-          <div className="w-full max-w-md p-8 space-y-4 bg-white rounded-xl shadow-xl text-center">
-            <h2 className="text-2xl font-bold text-gray-900">Application Not Configured</h2>
-            <p className="text-slate-600">
-              The Gemini API key has not been configured for this application. Please contact the administrator to set it up.
-            </p>
-            <div className="bg-red-50 border-l-4 border-red-400 p-4 mt-4">
-                <div className="flex">
-                    <div className="flex-shrink-0">
-                        <svg className="h-5 w-5 text-red-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
-                            <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
-                        </svg>
-                    </div>
-                    <div className="ml-3">
-                        <p className="text-sm text-red-700 text-left">
-                            <b>For Developers:</b> The application is expecting the API key in <code>process.env.API_KEY</code>.
-                        </p>
-                    </div>
-                </div>
-            </div>
-          </div>
-        </div>
-      );
-    }
-
     if (!isDataLoaded) {
         return (
             <div className="flex items-center justify-center h-screen bg-slate-100">

@@ -1,24 +1,13 @@
 {
-  "name": "mccia-msme-helpline-chatbot",
+  "name": "mccia-msme-chatbot-bff",
+  "version": "1.0.0",
+  "description": "Backend-for-frontend proxy for the MSME Chatbot",
   "private": true,
-  "version": "0.0.0",
-  "type": "module",
-  "scripts": {
-    "dev": "vite",
-    "build": "vite build",
-    "preview": "vite preview"
-  },
   "dependencies": {
-    "react-dom": "^18.2.0",
-    "react": "^18.2.0",
-    "@google/genai": "^1.6.0",
-    "react-markdown": "^10.1.0",
-    "remark-gfm": "^4.0.1",
-    "@supabase/supabase-js": "2"
+    "@google/genai": "^1.6.0"
   },
   "devDependencies": {
-    "@types/node": "^22.14.0",
-    "typescript": "~5.8.2",
-    "vite": "^6.2.0"
+    "@vercel/node": "^3.2.0",
+    "typescript": "^5.4.5"
   }
 }
