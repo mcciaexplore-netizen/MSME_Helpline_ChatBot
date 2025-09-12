@@ -43,15 +43,15 @@ const getYoutubeVideoId = (url: string): string | null => {
 const VideoSuggestionsDisplay: React.FC<VideoSuggestionsDisplayProps> = ({ videos }) => {
   if (!videos || videos.length === 0) {
     return (
-      <div className="mt-3 pt-3.5 border-t border-slate-200"> {/* Removed dark:border-slate-700. Increased top padding slightly */}
-        <p className="text-sm text-slate-600 italic">No relevant videos found for this query.</p> {/* Removed dark:text-slate-400 */}
+      <div className="mt-3 pt-3.5 border-t border-slate-200">
+        <p className="text-sm text-slate-600 italic">No relevant videos found for this query.</p>
       </div>
     );
   }
 
   return (
-    <div className="mt-3 pt-3 border-t border-slate-200"> {/* Removed dark:border-slate-700 */}
-      <h4 className="text-sm font-semibold text-slate-700 mb-2.5">Relevant Videos:</h4> {/* Removed dark:text-slate-300 */}
+    <div className="mt-3 pt-3 border-t border-slate-200">
+      <h4 className="text-sm font-semibold text-slate-700 mb-2.5">Relevant Videos:</h4>
       <div className="space-y-3">
         {videos.map((video) => {
           const videoId = getYoutubeVideoId(video.videoLink);
@@ -63,7 +63,7 @@ const VideoSuggestionsDisplay: React.FC<VideoSuggestionsDisplayProps> = ({ video
               href={video.videoLink}
               target="_blank"
               rel="noopener noreferrer"
-              className="flex items-start p-3 bg-white rounded-lg shadow-sm border border-slate-200/80 hover:shadow-md transition-all duration-150 group" // Removed dark classes
+              className="flex items-start p-3 bg-white rounded-lg shadow-sm border border-slate-200/80 hover:shadow-md transition-all duration-150 group"
             >
               <div className="relative w-24 h-auto aspect-video mr-3 shrink-0">
                 {thumbnailUrl ? (
@@ -71,26 +71,26 @@ const VideoSuggestionsDisplay: React.FC<VideoSuggestionsDisplayProps> = ({ video
                     <img 
                       src={thumbnailUrl} 
                       alt={`Thumbnail for ${video.queryTitle}`} 
-                      className="w-full h-full object-cover rounded border border-slate-200" // Removed dark:border-slate-600
+                      className="w-full h-full object-cover rounded border border-slate-200"
                     />
                     <div className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-0 group-hover:bg-opacity-30 transition-opacity duration-150 rounded opacity-0 group-hover:opacity-100">
                       <PlayIcon className="w-8 h-8 text-white opacity-90" />
                     </div>
                   </>
                 ) : (
-                  <div className="w-full h-full flex items-center justify-center bg-slate-200 rounded text-3xl"> {/* Removed dark:bg-slate-600 */}
+                  <div className="w-full h-full flex items-center justify-center bg-slate-200 rounded text-3xl">
                     📺
                   </div>
                 )}
               </div>
               <div className="flex-grow min-w-0">
                 <h5
-                  className="text-sm font-medium text-blue-600 group-hover:text-blue-800 group-hover:underline truncate" // Removed dark classes
+                  className="text-sm font-medium text-blue-600 group-hover:text-blue-800 group-hover:underline truncate"
                   title={video.queryTitle}
                 >
                   {video.queryTitle}
                 </h5>
-                <p className="text-xs text-slate-600 mt-0.5 leading-relaxed line-clamp-2" title={video.description}> {/* Removed dark:text-slate-400 */}
+                <p className="text-xs text-slate-600 mt-0.5 leading-relaxed line-clamp-2" title={video.description}>
                   {video.description}
                 </p>
               </div>

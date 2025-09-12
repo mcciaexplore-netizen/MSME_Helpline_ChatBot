@@ -11,7 +11,13 @@ import { SendIcon } from './icons';
 import { saveNewChat, updateChatHistory } from '../services/chatHistoryService';
 
 // Initialize the Gemini AI client
-const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+// API key must be obtained from `process.env.API_KEY` as per guidelines.
+// FIX: Using process.env.API_KEY to get the Gemini API key as per guidelines, instead of import.meta.env. This resolves the TypeScript error.
+const apiKey = process.env.API_KEY;
+if (!apiKey) {
+  throw new Error("API_KEY is not set. Please set it in your environment variables.");
+}
+const ai = new GoogleGenAI({ apiKey });
 
 interface ChatInterfaceProps {
   currentUser: TeamMember;
