@@ -15,6 +15,9 @@ import { supabase } from './services/supabaseService';
 
 type AppView = 'userLogin' | 'chat' | 'adminLogin' | 'adminDashboard';
 
+// This check verifies if the API key is provided via environment variables.
+const isApiKeyConfigured = process.env.API_KEY && process.env.API_KEY !== "__GEMINI_API_KEY__";
+
 const App: React.FC = () => {
   const [currentUser, setCurrentUser] = useState<TeamMember | null>(null);
   const [view, setView] = useState<AppView>('userLogin');
@@ -23,6 +26,7 @@ const App: React.FC = () => {
   const [chatHistory, setChatHistory] = useState<ChatHistory[]>([]);
   const [activeChatId, setActiveChatId] = useState<string | null>(null);
   const [isHistoryLoading, setIsHistoryLoading] = useState(false);
+  const [isDataLoaded, setIsDataLoaded] = useState(false);
 
   useEffect(() => {
     const loadData = async () => {
@@ -31,8 +35,11 @@ const App: React.FC = () => {
       setFaqs(loadedFaqs);
       const loadedVideos = await loadVideosFromGoogleSheet();
       setVideos(loadedVideos);
+      setIsDataLoaded(true);
     };
-    loadData();
+    if (isApiKeyConfigured) {
+        loadData();
+    }
   }, []);
   
   const loadChatHistory = useCallback(async (userId: string) => {
@@ -79,8 +86,6 @@ const App: React.FC = () => {
   };
 
   const handleAdminClick = () => {
-    // If the currently logged-in user is an admin, go directly to the dashboard.
-    // The admin button in the header is only visible to admins anyway.
     if (currentUser?.role === 'admin') {
       setView('adminDashboard');
     }
@@ -104,6 +109,43 @@ const App: React.FC = () => {
   const activeChat = chatHistory.find(c => c.id === activeChatId) || null;
 
   const renderContent = () => {
+    if (!isApiKeyConfigured) {
+      return (
+        <div className="flex items-center justify-center h-screen bg-slate-100">
+          <div className="w-full max-w-md p-8 space-y-4 bg-white rounded-xl shadow-xl text-center">
+            <h2 className="text-2xl font-bold text-gray-900">Application Not Configured</h2>
+            <p className="text-slate-600">
+              The Gemini API key has not been configured for this application. Please contact the administrator to set it up.
+            </p>
+            <div className="bg-red-50 border-l-4 border-red-400 p-4 mt-4">
+                <div className="flex">
+                    <div className="flex-shrink-0">
+                        <svg className="h-5 w-5 text-red-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                            <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
+                        </svg>
+                    </div>
+                    <div className="ml-3">
+                        <p className="text-sm text-red-700 text-left">
+                            <b>For Developers:</b> The application is expecting the API key in <code>process.env.API_KEY</code>.
+                        </p>
+                    </div>
+                </div>
+            </div>
+          </div>
+        </div>
+      );
+    }
+
+    if (!isDataLoaded) {
+        return (
+            <div className="flex items-center justify-center h-screen bg-slate-100">
+                <div className="text-center">
+                    <p className="text-slate-600">Loading initial data...</p>
+                </div>
+            </div>
+        );
+    }
+
     switch (view) {
       case 'userLogin':
         return <UserLogin onLogin={handleLogin} />;
@@ -112,7 +154,6 @@ const App: React.FC = () => {
       case 'adminDashboard':
         return (
           <div className="flex flex-col h-screen">
-            {/* The Header here is used as a way back to the chat view for the admin. */}
             <Header currentUser={currentUser!} onAdminClick={() => {}} onLogout={() => setView('chat')} />
             <AdminDashboard />
           </div>
@@ -123,7 +164,7 @@ const App: React.FC = () => {
           <div className="flex flex-col h-screen bg-slate-50 font-sans">
             <Header
               currentUser={currentUser}
-              onAdminClick={handleAdminClick} // Use the new direct-access handler
+              onAdminClick={handleAdminClick}
               onLogout={handleLogout}
             />
             <main className="flex-1 flex overflow-hidden">

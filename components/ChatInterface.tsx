@@ -1,5 +1,5 @@
 import { GoogleGenAI } from '@google/genai';
-import React, { useState, useRef, useEffect, useCallback } from 'react';
+import React, { useState, useRef, useEffect, useCallback, useMemo } from 'react';
 import { ChatMessage, FAQ, TeamMember, VideoSuggestion, ChatHistory } from '../types';
 import { findRelevantFaqs } from '../services/faqService';
 import { findRelevantVideos } from '../services/videoSuggestionService';
@@ -9,10 +9,6 @@ import ChatMessageItem from './ChatMessageItem';
 import StarterPrompts from './StarterPrompts';
 import { SendIcon } from './icons';
 import { saveNewChat, updateChatHistory } from '../services/chatHistoryService';
-
-// FIX: Initialize Gemini AI client using process.env.API_KEY as per guidelines.
-// This assumes the API key is pre-configured in the environment.
-const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
 
 interface ChatInterfaceProps {
   currentUser: TeamMember;
@@ -28,6 +24,10 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({ currentUser, faqs, videos
   const [inputValue, setInputValue] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const chatEndRef = useRef<HTMLDivElement>(null);
+
+  // Initialize Gemini AI client using the globally available process.env.API_KEY.
+  // App.tsx ensures this component only renders when the key is valid.
+  const ai = useMemo(() => new GoogleGenAI({ apiKey: process.env.API_KEY! }), []);
 
   useEffect(() => {
     if (activeChat) {
@@ -49,8 +49,7 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({ currentUser, faqs, videos
   }, [messages]);
 
   const handleSendMessage = useCallback(async (prompt: string) => {
-    // FIX: Removed !ai check as 'ai' is now a non-null constant.
-    if (!prompt.trim() || isLoading) return;
+    if (!ai || !prompt.trim() || isLoading) return;
 
     const userMessage: ChatMessage = {
       id: `user-${Date.now()}`,
@@ -68,7 +67,6 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({ currentUser, faqs, videos
     let isFaqResult = false;
     let relevantFaqs: FAQ[] = [];
     
-    // 1. Check for relevant FAQs first
     relevantFaqs = findRelevantFaqs(prompt, faqs, 2);
     if (relevantFaqs.length > 0) {
       responseContent = `I found some information that might help:\n\n**${relevantFaqs[0].Question}**\n${relevantFaqs[0].Solution}`;
@@ -77,7 +75,6 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({ currentUser, faqs, videos
       }
       isFaqResult = true;
     } else {
-      // 2. If no relevant FAQ, call Gemini API
       try {
         const result = await ai.models.generateContent({
             model: 'gemini-2.5-flash',
@@ -86,11 +83,10 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({ currentUser, faqs, videos
         responseContent = result.text;
       } catch (error) {
         console.error("Error calling Gemini API:", error);
-        responseContent = "Error: I'm sorry, I encountered an issue while generating a response. Please try again later.";
+        responseContent = "Error: I'm sorry, I encountered an issue while generating a response. Please check if the API key is valid and try again later.";
       }
     }
 
-    // 3. Find relevant video suggestions
     const videoSuggestions = findRelevantVideos(prompt, videos);
 
     const assistantMessage: ChatMessage = {
@@ -107,7 +103,6 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({ currentUser, faqs, videos
     const finalMessages = [...currentMessages, assistantMessage];
     setMessages(finalMessages);
 
-    // 4. Logging
     logQuery({
       userId: currentUser.id,
       userName: currentUser.name,
@@ -118,19 +113,17 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({ currentUser, faqs, videos
       videoSuggestions: videoSuggestions,
     });
 
-    // 5. Chat History
     if (activeChat) {
         const updatedChat = await updateChatHistory(activeChat.id, finalMessages);
         if (updatedChat) onChatHistoryUpdate(updatedChat);
     } else {
-        // Simple domain categorization
         const domain = STARTER_PROMPT_TOPICS.find(t => prompt.toLowerCase().includes(t.toLowerCase().split(' ')[0])) || 'General';
         const newChat = await saveNewChat(currentUser.id, currentUser.name, prompt, domain, finalMessages);
         if (newChat) onChatHistoryUpdate(newChat);
     }
 
     setIsLoading(false);
-  }, [isLoading, messages, faqs, videos, currentUser, activeChat, onChatHistoryUpdate]);
+  }, [ai, isLoading, messages, faqs, videos, currentUser, activeChat, onChatHistoryUpdate]);
 
 
   const handleFeedback = (messageId: string, feedback: '👍' | '👎') => {
@@ -155,7 +148,6 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({ currentUser, faqs, videos
 
   const handlePromptClick = (prompt: string) => {
     setInputValue(prompt);
-    // Use a small timeout to allow the input value to update before sending
     setTimeout(() => handleSendMessage(prompt), 50);
   };
   

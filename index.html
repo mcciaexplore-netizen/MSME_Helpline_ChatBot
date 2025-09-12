@@ -22,6 +22,15 @@
 </head>
 <body class="bg-slate-100">
   <div id="root"></div>
+  <script>
+    window.process = {
+      env: {
+        // This placeholder is meant to be replaced by a build process or environment injection.
+        // Do not hardcode your secret API key here in a public repository.
+        API_KEY: "__GEMINI_API_KEY__" 
+      }
+    };
+  </script>
   <script type="module" src="/index.tsx"></script>
 </body>
 </html>
