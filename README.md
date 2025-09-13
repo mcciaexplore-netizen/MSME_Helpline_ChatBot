@@ -28,6 +28,25 @@ This project uses a **secure backend proxy** to handle all communication with th
 - **Database**: Supabase (for logging and chat history)
 - **Data Source**: Google Sheets (for FAQs and Video Suggestions)
 
+## 🏛️ Project Structure
+
+The project follows a modern, organized structure:
+
+```
+/
+├── api/                  # Vercel Serverless Functions (Backend)
+│   └── generate.ts
+├── src/                  # All frontend source code
+│   ├── components/       # React components (auth, admin, chat, common)
+│   ├── config/           # App-wide constants
+│   ├── services/         # Business logic (API calls, data processing)
+│   ├── types/            # TypeScript type definitions
+│   ├── App.tsx           # Main application component
+│   └── main.tsx          # Application entry point
+├── index.html            # Main HTML file
+└── ... (other config files)
+```
+
 ---
 
 ## 🚀 Getting Started & Deployment
@@ -52,14 +71,14 @@ This project is designed to be deployed on a platform that supports serverless f
 1.  After creating your Supabase project, go to the **SQL Editor**.
 2.  Create the necessary tables by running the SQL queries found in `supabase_schema.sql` (if provided).
 3.  Go to **Project Settings > API**. Find your Project URL and `anon` public key.
-4.  Open `constants.ts` and update `SUPABASE_URL` and `SUPABASE_ANON_KEY` with your credentials. Commit and push this change.
+4.  Open `src/config/constants.ts` and update `SUPABASE_URL` and `SUPABASE_ANON_KEY` with your credentials. Commit and push this change.
 
 #### c. Set up Google Sheets
 1.  Create a Google Sheet with two tabs: one for FAQs (e.g., `Chat FAQ`) and one for video suggestions (e.g., `Vid_DB`).
 2.  In each sheet, go to **File > Share > Publish to web**.
 3.  Select the correct tab, choose **Comma-separated values (.csv)**, and click **Publish**.
 4.  Copy the generated URL for each sheet.
-5.  Open `constants.ts` and update `GOOGLE_SHEET_FAQ_URL` and `GOOGLE_SHEET_VIDEO_URL` with your published sheet URLs. Commit and push this change.
+5.  Open `src/config/constants.ts` and update `GOOGLE_SHEET_FAQ_URL` and `GOOGLE_SHEET_VIDEO_URL` with your published sheet URLs. Commit and push this change.
 
 #### d. Set up the Secure Gemini API Key
 This is the most important step for security. The API key is stored as a server-side environment variable, never in your code.
