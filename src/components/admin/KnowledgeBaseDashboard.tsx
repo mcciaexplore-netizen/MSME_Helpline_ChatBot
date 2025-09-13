@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useMemo } from 'react';
+// FIX: Corrected import paths for services, types and constants.
 import { getQueryLogs } from '../../services/loggingService';
 import { QueryLogEntry } from '../../types';
 import { DOMAIN_COLORS } from '../../config/constants';
@@ -153,7 +154,7 @@ const KnowledgeBaseDashboard: React.FC = () => {
                         </div>
                     ) : (
                         unreviewedAiQueries.map(log => (
-                            <div key={log.timestamp} className="border border-slate-200 p-4 rounded-lg hover:bg-slate-50 transition-colors">
+                            <div key={log.id} className="border border-slate-200 p-4 rounded-lg hover:bg-slate-50 transition-colors">
                                 <p className="text-sm text-slate-500 mb-2">{new Date(log.timestamp).toLocaleString()} - by {log.userName}</p>
                                 <p className="font-semibold text-slate-800 mb-2">Q: {log.query}</p>
                                 <p className="text-sm text-slate-700 bg-slate-100 p-3 rounded-md line-clamp-3">A: {log.response}</p>
