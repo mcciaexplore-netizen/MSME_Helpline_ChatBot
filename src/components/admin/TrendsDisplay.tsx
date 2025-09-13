@@ -1,10 +1,9 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import { getQueryLogs } from '../../services/loggingService';
-import { STOP_WORDS } from '../../config/constants';
-import { QueryLogEntry } from '../../types';
-import Card from '../common/Card';
-// FIX: Imported missing icon components.
-import { ChartBarIcon, BookOpenIcon, ChatBubbleLeftRightIcon } from '../common/Icons';
+import { getQueryLogs } from '/src/services/loggingService.ts';
+import { STOP_WORDS } from '/src/config/constants.ts';
+import { QueryLogEntry } from '/src/types/index.ts';
+import Card from '/src/components/common/Card.tsx';
+import { ChartBarIcon, BookOpenIcon, ChatBubbleLeftRightIcon } from '/src/components/common/Icons.tsx';
 
 // A simple word counter, could be replaced with a more advanced library
 const countWordFrequency = (texts: string[]): Map<string, number> => {

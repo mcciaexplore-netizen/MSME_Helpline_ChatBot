@@ -1,8 +1,8 @@
 import React from 'react';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
-import { ChatMessage } from '../../types';
-import VideoSuggestionsDisplay from './VideoSuggestionsDisplay';
+import { ChatMessage } from '/src/types/index.ts';
+import VideoSuggestionsDisplay from '/src/components/chat/VideoSuggestionsDisplay.tsx';
 
 interface ChatMessageItemProps {
   message: ChatMessage;

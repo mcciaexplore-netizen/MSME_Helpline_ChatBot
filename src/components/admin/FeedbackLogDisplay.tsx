@@ -1,8 +1,8 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { getFeedbackLogs, clearFeedbackLogs } from '../../services/loggingService';
-import { FeedbackLogEntry } from '../../types';
-import { TrashIcon } from '../common/Icons';
-import Card from '../common/Card';
+import { getFeedbackLogs, clearFeedbackLogs } from '/src/services/loggingService.ts';
+import { FeedbackLogEntry } from '/src/types/index.ts';
+import { TrashIcon } from '/src/components/common/Icons.tsx';
+import Card from '/src/components/common/Card.tsx';
 
 const FeedbackLogDisplay: React.FC = () => {
   const [logs, setLogs] = useState<FeedbackLogEntry[]>([]);

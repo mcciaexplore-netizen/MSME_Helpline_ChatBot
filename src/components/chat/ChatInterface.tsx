@@ -1,13 +1,13 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react';
-import { ChatMessage, FAQ, TeamMember, VideoSuggestion, ChatHistory } from '../../types';
-import { findRelevantFaqs } from '../../services/faqService';
-import { findRelevantVideos } from '../../services/videoSuggestionService';
-import { logQuery, logFeedback } from '../../services/loggingService';
-import { STARTER_PROMPTS, STARTER_PROMPT_TOPICS } from '../../config/constants';
-import ChatMessageItem from './ChatMessageItem';
-import StarterPrompts from './StarterPrompts';
-import { SendIcon } from '../common/Icons';
-import { saveNewChat, updateChatHistory } from '../../services/chatHistoryService';
+import { ChatMessage, FAQ, TeamMember, VideoSuggestion, ChatHistory } from '/src/types/index.ts';
+import { findRelevantFaqs } from '/src/services/faqService.ts';
+import { findRelevantVideos } from '/src/services/videoSuggestionService.ts';
+import { logQuery, logFeedback } from '/src/services/loggingService.ts';
+import { STARTER_PROMPTS, STARTER_PROMPT_TOPICS } from '/src/config/constants.ts';
+import ChatMessageItem from '/src/components/chat/ChatMessageItem.tsx';
+import StarterPrompts from '/src/components/chat/StarterPrompts.tsx';
+import { SendIcon } from '/src/components/common/Icons.tsx';
+import { saveNewChat, updateChatHistory } from '/src/services/chatHistoryService.ts';
 
 interface ChatInterfaceProps {
   currentUser: TeamMember;

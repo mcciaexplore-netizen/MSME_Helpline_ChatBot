@@ -1,7 +1,7 @@
 import React from 'react';
-import { ChatHistory } from '../../types';
-import { DOMAIN_COLORS } from '../../config/constants';
-import { PlusIcon } from '../common/Icons';
+import { ChatHistory } from '/src/types/index.ts';
+import { DOMAIN_COLORS } from '/src/config/constants.ts';
+import { PlusIcon } from '/src/components/common/Icons.tsx';
 
 interface ChatHistorySidebarProps {
     chats: ChatHistory[];

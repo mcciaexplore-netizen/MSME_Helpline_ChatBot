@@ -1,6 +1,6 @@
 import React, { useState, useMemo } from 'react';
-import { TEAM_MEMBERS } from '../../config/constants';
-import { TeamMember } from '../../types';
+import { TEAM_MEMBERS } from '/src/config/constants.ts';
+import { TeamMember } from '/src/types/index.ts';
 
 interface UserLoginProps {
   onLogin: (userId: string, password?: string) => boolean;

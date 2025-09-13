@@ -1,5 +1,5 @@
-import { FAQ } from '../types';
-import { GOOGLE_SHEET_FAQ_URL } from '../config/constants';
+import { FAQ } from '/src/types/index.ts';
+import { GOOGLE_SHEET_FAQ_URL } from '/src/config/constants.ts';
 
 declare global {
   interface Window {

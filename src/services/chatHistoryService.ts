@@ -1,5 +1,5 @@
-import { supabase } from './supabaseService';
-import { ChatHistory, ChatMessage } from '../types';
+import { supabase } from '/src/services/supabaseService.ts';
+import { ChatHistory, ChatMessage } from '/src/types/index.ts';
 
 if (!supabase) {
     console.warn("Supabase client is not initialized. Chat history features will be disabled.");

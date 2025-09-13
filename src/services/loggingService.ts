@@ -1,5 +1,5 @@
-import { supabase } from './supabaseService';
-import { QueryLogEntry, FeedbackLogEntry } from '../types';
+import { supabase } from '/src/services/supabaseService.ts';
+import { QueryLogEntry, FeedbackLogEntry } from '/src/types/index.ts';
 
 if (!supabase) {
     console.warn("Supabase client not initialized. Logging service will be disabled.");

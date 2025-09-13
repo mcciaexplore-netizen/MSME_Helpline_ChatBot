@@ -1,17 +1,17 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import UserLogin from './components/auth/UserLogin';
-import AdminLogin from './components/auth/AdminLogin';
-import AdminDashboard from './components/admin/AdminDashboard';
-import Header from './components/common/Header';
-import Spinner from './components/common/Spinner';
-import ChatInterface from './components/chat/ChatInterface';
-import { TeamMember, FAQ, VideoSuggestion, ChatHistory } from './types';
-import { TEAM_MEMBERS, ADMIN_PASSWORD } from './config/constants';
-import { loadFaqsFromGoogleSheet } from './services/faqService';
-import { loadVideosFromGoogleSheet } from './services/videoSuggestionService';
-import { getChatHistoryForUser } from './services/chatHistoryService';
-import ChatHistorySidebar from './components/chat/ChatHistorySidebar';
-import { supabase } from './services/supabaseService';
+import UserLogin from '/src/components/auth/UserLogin.tsx';
+import AdminLogin from '/src/components/auth/AdminLogin.tsx';
+import AdminDashboard from '/src/components/admin/AdminDashboard.tsx';
+import Header from '/src/components/common/Header.tsx';
+import Spinner from '/src/components/common/Spinner.tsx';
+import ChatInterface from '/src/components/chat/ChatInterface.tsx';
+import { TeamMember, FAQ, VideoSuggestion, ChatHistory } from '/src/types/index.ts';
+import { TEAM_MEMBERS, ADMIN_PASSWORD } from '/src/config/constants.ts';
+import { loadFaqsFromGoogleSheet } from '/src/services/faqService.ts';
+import { loadVideosFromGoogleSheet } from '/src/services/videoSuggestionService.ts';
+import { getChatHistoryForUser } from '/src/services/chatHistoryService.ts';
+import ChatHistorySidebar from '/src/components/chat/ChatHistorySidebar.tsx';
+import { supabase } from '/src/services/supabaseService.ts';
 
 type AppView = 'userLogin' | 'chat' | 'adminLogin' | 'adminDashboard';
 

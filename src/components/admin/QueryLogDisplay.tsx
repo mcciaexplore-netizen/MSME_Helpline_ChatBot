@@ -1,9 +1,9 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { getQueryLogs, clearQueryLogs } from '../../services/loggingService';
-import { QueryLogEntry, FAQ, VideoSuggestion } from '../../types';
-import { TrashIcon, EyeIcon } from '../common/Icons';
-import Card from '../common/Card';
-import Modal from '../common/Modal';
+import { getQueryLogs, clearQueryLogs } from '/src/services/loggingService.ts';
+import { QueryLogEntry, FAQ, VideoSuggestion } from '/src/types/index.ts';
+import { TrashIcon, EyeIcon } from '/src/components/common/Icons.tsx';
+import Card from '/src/components/common/Card.tsx';
+import Modal from '/src/components/common/Modal.tsx';
 
 // Defensive renderer for a list of FAQs
 const FaqList: React.FC<{ faqs: FAQ[] }> = ({ faqs }) => {

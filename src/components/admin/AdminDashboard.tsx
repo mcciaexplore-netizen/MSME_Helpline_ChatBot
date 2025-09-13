@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
-import QueryLogDisplay from './QueryLogDisplay';
-import FeedbackLogDisplay from './FeedbackLogDisplay';
-import TrendsDisplay from './TrendsDisplay';
-import KnowledgeBaseDashboard from './KnowledgeBaseDashboard';
-import { ChartBarIcon, BookOpenIcon, ChatBubbleLeftRightIcon } from '../common/Icons';
+import QueryLogDisplay from '/src/components/admin/QueryLogDisplay.tsx';
+import FeedbackLogDisplay from '/src/components/admin/FeedbackLogDisplay.tsx';
+import TrendsDisplay from '/src/components/admin/TrendsDisplay.tsx';
+import KnowledgeBaseDashboard from '/src/components/admin/KnowledgeBaseDashboard.tsx';
+import { ChartBarIcon, BookOpenIcon, ChatBubbleLeftRightIcon } from '/src/components/common/Icons.tsx';
 
 type AdminTab = 'trends' | 'knowledgeBase' | 'queries' | 'feedback';
 

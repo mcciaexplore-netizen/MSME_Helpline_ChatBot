@@ -1,4 +1,4 @@
-import { TeamMember } from '../types';
+import { TeamMember } from '/src/types/index.ts';
 
 // NOTE: Replace with your actual Supabase project URL and Anon Key
 export const SUPABASE_URL = "https://ctfkjinfjoiwwfklpbcl.supabase.co";

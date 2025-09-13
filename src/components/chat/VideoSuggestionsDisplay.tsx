@@ -1,6 +1,6 @@
 import React from 'react';
-import { VideoSuggestion } from '../../types';
-import { PlayIcon } from '../common/Icons';
+import { VideoSuggestion } from '/src/types/index.ts';
+import { PlayIcon } from '/src/components/common/Icons.tsx';
 
 interface VideoSuggestionsDisplayProps {
   videos: VideoSuggestion[];

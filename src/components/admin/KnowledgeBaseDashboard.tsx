@@ -1,12 +1,10 @@
 import React, { useState, useEffect, useMemo } from 'react';
-// FIX: Corrected import paths for services, types and constants.
-import { getQueryLogs } from '../../services/loggingService';
-import { QueryLogEntry } from '../../types';
-import { DOMAIN_COLORS } from '../../config/constants';
-import Card from '../common/Card';
-import Modal from '../common/Modal';
-// FIX: Imported the missing DocumentTextIcon component.
-import { DocumentTextIcon } from '../common/Icons';
+import { getQueryLogs } from '/src/services/loggingService.ts';
+import { QueryLogEntry } from '/src/types/index.ts';
+import { DOMAIN_COLORS } from '/src/config/constants.ts';
+import Card from '/src/components/common/Card.tsx';
+import Modal from '/src/components/common/Modal.tsx';
+import { DocumentTextIcon } from '/src/components/common/Icons.tsx';
 
 const HANDLED_QUERIES_STORAGE_KEY = 'mccia_handled_queries';
 

@@ -1,6 +1,6 @@
 import React from 'react';
-import { TeamMember } from '../../types';
-import { CogIcon, ArrowLeftIcon } from './Icons';
+import { TeamMember } from '/src/types/index.ts';
+import { CogIcon, ArrowLeftIcon } from '/src/components/common/Icons.tsx';
 
 interface HeaderProps {
   currentUser: TeamMember;
